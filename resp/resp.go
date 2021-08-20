@@ -42,6 +42,16 @@ func Success(c echo.Context) error {
 	return c.JSON(http.StatusOK, rjson)
 }
 
+func Msg(status int, msg string, code StatusCode, c echo.Context) error {
+	var rjson struct {
+		Code StatusCode `json:"code"`
+		Msg  string     `json:"msg"`
+	}
+	rjson.Code = code
+	rjson.Msg = msg
+	return c.JSON(status, rjson)
+}
+
 func ListResponse(arr interface{}, total int64, c echo.Context) error {
 	if arr == nil {
 		arr = make([]interface{}, 0)
