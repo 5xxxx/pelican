@@ -1,6 +1,7 @@
 package resp
 
 import (
+	"errors"
 	"net/http"
 	"reflect"
 
@@ -15,7 +16,7 @@ const (
 
 type listResponse struct {
 	Code StatusCode `json:"code"`
-	Msg  string     `json:"msg"`
+	Msg  string     `json:"msg,omitempty"`
 	Data datas      `json:"data"`
 }
 
@@ -26,7 +27,7 @@ type datas struct {
 
 type dataResponse struct {
 	Code StatusCode  `json:"code"`
-	Msg  string      `json:"msg"`
+	Msg  string      `json:"msg,omitempty"`
 	Data interface{} `json:"data"`
 }
 
@@ -42,14 +43,40 @@ func Success(c echo.Context) error {
 	return c.JSON(http.StatusOK, rjson)
 }
 
-func Msg(status int, msg string, code StatusCode, c echo.Context) error {
-	var rjson struct {
-		Code StatusCode `json:"code"`
-		Msg  string     `json:"msg"`
+func Msg(msg string, code StatusCode) error {
+	return Error{
+		Err:      errors.New(msg),
+		HttpCode: http.StatusCreated,
+		Code:     code,
+		Context:  nil,
 	}
-	rjson.Code = code
-	rjson.Msg = msg
-	return c.JSON(status, rjson)
+}
+
+func DBErr(err error, code StatusCode) error {
+	return Error{
+		Err:      err,
+		HttpCode: http.StatusBadRequest,
+		Code:     code,
+		Context:  nil,
+	}
+}
+
+func Unauthorized(err error) error {
+	return Error{
+		Err:      err,
+		HttpCode: http.StatusUnauthorized,
+		Code:     http.StatusUnauthorized,
+		Context:  nil,
+	}
+}
+
+func ParamErr(err error, code StatusCode) error {
+	return Error{
+		Err:      err,
+		HttpCode: http.StatusBadRequest,
+		Code:     code,
+		Context:  nil,
+	}
 }
 
 func ListResponse(arr interface{}, total int64, c echo.Context) error {
@@ -83,4 +110,41 @@ func StatusResponse(status int, data interface{}, code StatusCode, c echo.Contex
 		Code: code,
 	}
 	return c.JSON(status, r)
+}
+
+type ErrorHandler func(ctx echo.Context)
+
+func EchoErrorHandler(handlerFunc ...ErrorHandler) func(err error, c echo.Context) {
+	return func(err error, c echo.Context) {
+		for _, v := range handlerFunc {
+			v(c)
+		}
+		if err == nil {
+			return
+		}
+		var rjson struct {
+			Code StatusCode `json:"code"`
+			Msg  string     `json:"msg"`
+		}
+
+		if terr, ok := err.(*Error); ok {
+			rjson.Code = terr.Code
+			rjson.Msg = terr.Err.Error()
+			c.JSON(terr.HttpCode, rjson)
+
+		} else {
+			c.JSON(http.StatusBadRequest, err)
+		}
+	}
+}
+
+type Error struct {
+	Err      error
+	HttpCode int
+	Code     StatusCode
+	Context  echo.Context
+}
+
+func (e Error) Error() string {
+	return e.Err.Error()
 }
