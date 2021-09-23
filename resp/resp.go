@@ -11,7 +11,12 @@ import (
 type StatusCode int
 
 const (
-	ok StatusCode = http.StatusOK
+	ok           StatusCode = http.StatusOK
+	db           StatusCode = 407
+	msg          StatusCode = 201
+	param        StatusCode = 405
+	unauthorized StatusCode = 401
+	unknown      StatusCode = 501
 )
 
 type listResponse struct {
@@ -22,7 +27,7 @@ type listResponse struct {
 
 type datas struct {
 	Total int64       `json:"total,omitempty"`
-	Data  interface{} `json:"data"`
+	List  interface{} `json:"list"`
 }
 
 type dataResponse struct {
@@ -43,20 +48,29 @@ func Success(c echo.Context) error {
 	return c.JSON(http.StatusOK, rjson)
 }
 
-func Msg(msg string, code StatusCode) error {
+func BizErrStatus(err error, code StatusCode) error {
 	return Error{
-		Err:      errors.New(msg),
-		HttpCode: http.StatusCreated,
+		Err:      err,
+		HttpCode: http.StatusBadRequest,
 		Code:     code,
 		Context:  nil,
 	}
 }
 
-func DBErr(err error, code StatusCode) error {
+func Msg(m string) error {
+	return Error{
+		Err:      errors.New(m),
+		HttpCode: http.StatusCreated,
+		Code:     msg,
+		Context:  nil,
+	}
+}
+
+func DBErr(err error) error {
 	return Error{
 		Err:      err,
 		HttpCode: http.StatusBadRequest,
-		Code:     code,
+		Code:     db,
 		Context:  nil,
 	}
 }
@@ -65,16 +79,25 @@ func Unauthorized(err error) error {
 	return Error{
 		Err:      err,
 		HttpCode: http.StatusUnauthorized,
-		Code:     http.StatusUnauthorized,
+		Code:     unauthorized,
 		Context:  nil,
 	}
 }
 
-func ParamErr(err error, code StatusCode) error {
+func ParamErr(err error) error {
 	return Error{
 		Err:      err,
 		HttpCode: http.StatusBadRequest,
-		Code:     code,
+		Code:     param,
+		Context:  nil,
+	}
+}
+
+func UnknownErr(err error) error {
+	return Error{
+		Err:      err,
+		HttpCode: http.StatusBadRequest,
+		Code:     unknown,
 		Context:  nil,
 	}
 }
@@ -87,7 +110,7 @@ func ListResponse(arr interface{}, total int64, c echo.Context) error {
 	}
 	r := listResponse{
 		Data: datas{
-			Data:  arr,
+			List:  arr,
 			Total: total,
 		},
 		Code: ok,
@@ -127,7 +150,7 @@ func EchoErrorHandler(handlerFunc ...ErrorHandler) func(err error, c echo.Contex
 			Msg  string     `json:"msg"`
 		}
 
-		if terr, ok := err.(*Error); ok {
+		if terr, ok := err.(Error); ok {
 			rjson.Code = terr.Code
 			rjson.Msg = terr.Err.Error()
 			c.JSON(terr.HttpCode, rjson)
