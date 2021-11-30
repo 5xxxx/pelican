@@ -2,10 +2,10 @@ package resp
 
 import (
 	"errors"
+	"fmt"
+	"github.com/labstack/echo/v4"
 	"net/http"
 	"reflect"
-
-	"github.com/labstack/echo/v4"
 )
 
 type StatusCode int
@@ -50,7 +50,7 @@ func Success(c echo.Context) error {
 
 func BizErrStatus(err error, code StatusCode) error {
 	return Error{
-		Err:      err,
+		Err:      errors.New(fmt.Sprintf("%+v", err)),
 		HttpCode: http.StatusBadRequest,
 		Code:     code,
 		Context:  nil,
@@ -68,7 +68,7 @@ func Msg(m string) error {
 
 func DBErr(err error) error {
 	return Error{
-		Err:      err,
+		Err:      errors.New(fmt.Sprintf("%+v", err)),
 		HttpCode: http.StatusBadRequest,
 		Code:     db,
 		Context:  nil,
@@ -77,7 +77,7 @@ func DBErr(err error) error {
 
 func Unauthorized(err error) error {
 	return Error{
-		Err:      err,
+		Err:      errors.New(fmt.Sprintf("%+v", err)),
 		HttpCode: http.StatusUnauthorized,
 		Code:     unauthorized,
 		Context:  nil,
@@ -86,7 +86,7 @@ func Unauthorized(err error) error {
 
 func ParamErr(err error) error {
 	return Error{
-		Err:      err,
+		Err:      errors.New(fmt.Sprintf("%+v", err)),
 		HttpCode: http.StatusBadRequest,
 		Code:     param,
 		Context:  nil,
@@ -95,7 +95,7 @@ func ParamErr(err error) error {
 
 func UnknownErr(err error) error {
 	return Error{
-		Err:      err,
+		Err:      errors.New(fmt.Sprintf("%+v", err)),
 		HttpCode: http.StatusBadRequest,
 		Code:     unknown,
 		Context:  nil,
@@ -121,6 +121,7 @@ func ListResponse(arr interface{}, total int64, c echo.Context) error {
 func Response(data interface{}, c echo.Context) error {
 	r := dataResponse{
 		Data: data,
+		Msg: "success",
 		Code: ok,
 	}
 
