@@ -1,3 +1,4 @@
+![Alt](https://repobeats.axiom.co/api/embed/2b8e22478ac76f9833fa2abf120d5adaaeb24afe.svg "Repobeats analytics image")
 # pelican
 
 pelican 是一套基础工具集,其中包括:
