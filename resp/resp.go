@@ -49,6 +49,10 @@ func Unauthorized(err error) error {
 	return errors.WithCode(ErrPermissionDenied, err.Error())
 }
 
+func SignatureInvalid(err error) error {
+	return errors.WithCode(ErrSignatureInvalid, err.Error())
+}
+
 func ParamErr(err error) error {
 	return errors.WithCode(ErrValidation, err.Error())
 }
@@ -90,19 +94,21 @@ func EchoErrorHandler(handlerFunc ...ErrorHandler) func(err error, c echo.Contex
 		for _, v := range handlerFunc {
 			v(c)
 		}
+		
 		if err == nil {
 			return
 		}
+
 		var rjson struct {
 			Code int    `json:"code"`
 			Msg  string `json:"msg"`
 		}
 
-		if terr, ok := err.(ErrCode); ok {
-			rjson.Code = terr.Code()
-			rjson.Msg = terr.Error()
-			c.JSON(terr.HTTP, rjson)
-
+		coder := errors.ParseCoder(err)
+		if coder.Code() != 1 {
+			rjson.Code = coder.Code()
+			rjson.Msg = coder.String()
+			c.JSON(coder.HTTPStatus(), rjson)
 		} else {
 			c.JSON(http.StatusBadRequest, err)
 		}
