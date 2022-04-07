@@ -12,12 +12,13 @@ require (
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/labstack/echo/v4 v4.6.1
-	github.com/marmotedu/errors v1.0.2 // indirect
-	github.com/novalagung/gubrak v1.0.0 // indirect
+	github.com/marmotedu/errors v1.0.2
+	github.com/novalagung/gubrak v1.0.0
 	github.com/onsi/gomega v1.15.0 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible
 	go.mongodb.org/mongo-driver v1.8.0
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
+	golang.org/x/tools v0.0.0-20201224043029-2b0845dc783e
 	google.golang.org/appengine v1.4.0 // indirect
 )
