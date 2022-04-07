@@ -1,8 +1,11 @@
 package resp
 
 import (
+	"fmt"
 	"net/http"
 	"reflect"
+
+	"github.com/5xxxx/log"
 
 	"github.com/labstack/echo/v4"
 	"github.com/marmotedu/errors"
@@ -89,14 +92,17 @@ func Response(data interface{}, c echo.Context) error {
 
 type ErrorHandler func(ctx echo.Context)
 
-func EchoErrorHandler(handlerFunc ...ErrorHandler) func(err error, c echo.Context) {
+func EchoErrorHandler(log log.Logger, handlerFunc ...ErrorHandler) func(err error, c echo.Context) {
 	return func(err error, c echo.Context) {
 		for _, v := range handlerFunc {
 			v(c)
 		}
-		
+
 		if err == nil {
 			return
+		}
+		if log != nil {
+			log.Error(fmt.Sprintf("%v", err))
 		}
 
 		var rjson struct {

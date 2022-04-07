@@ -3,6 +3,7 @@ module github.com/5xxxx/pelican
 go 1.16
 
 require (
+	github.com/5xxxx/log v1.0.0
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.9.0
@@ -10,7 +11,6 @@ require (
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-redsync/redsync v1.4.2
 	github.com/gomodule/redigo v2.0.0+incompatible
-	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/labstack/echo/v4 v4.6.1
 	github.com/marmotedu/errors v1.0.2
 	github.com/novalagung/gubrak v1.0.0
