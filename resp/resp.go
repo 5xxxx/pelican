@@ -40,10 +40,6 @@ func Success(c echo.Context) error {
 	return c.JSON(http.StatusOK, rjson)
 }
 
-func Msg(m string) error {
-	return errors.WithCode(ErrDatabase, m)
-}
-
 func DBErr(err error) error {
 	return errors.WithCode(ErrDatabase, err.Error())
 }
@@ -111,6 +107,7 @@ func EchoErrorHandler(log log.Logger, handlerFunc ...ErrorHandler) func(err erro
 		}
 
 		coder := errors.ParseCoder(err)
+
 		if coder.Code() != 1 {
 			rjson.Code = coder.Code()
 			rjson.Msg = coder.String()

@@ -254,8 +254,9 @@ func (g *Generator) generate(typeName string) {
 	g.Printf("\t// init register error codes defines in this source code to `github.com/marmotedu/errors`\n")
 	g.Printf("func init() {\n")
 	for _, v := range values {
-		code, description := v.ParseComment()
-		g.Printf("\tresp.register(%s, %s, \"%s\")\n", v.originalName, code, description)
+		//code, description := v.ParseComment()
+		fmt.Println(v)
+		//g.Printf("\tresp.Register(%s, %s, \"%s\")\n", v.originalName, code, description)
 	}
 	g.Printf("}\n")
 }
